@@ -1,0 +1,488 @@
+{
+	"info": {
+		"_postman_id": "94cf31a1-3f32-42a3-af3b-9e3b4dd6e4df",
+		"name": "User API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15765304"
+	},
+	"item": [
+		{
+			"name": "POST /v1/user/login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response;",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", () => {",
+							"    pm.response.to.be.json;",
+							"    response = pm.response.json();",
+							"});",
+							"",
+							"pm.test(\"Check JSON schema\", () => {",
+							"    let schema = {",
+							"        type: \"object\",",
+							"        properties: {",
+							"            token: {",
+							"                type: \"string\"",
+							"            }",
+							"        },",
+							"        required: [\"token\"],",
+							"        additionalProperties: false",
+							"    };",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"    pm.collectionVariables.set(\"token\", response.token);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"john@doe.com\",\n  \"password\": \"veryStrongPassword\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/user/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"user",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /user/items",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response;",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", () => {",
+							"    pm.response.to.be.json;",
+							"    response = pm.response.json();",
+							"});",
+							"",
+							"pm.test(\"Check JSON schema\", () => {",
+							"    let schema = {",
+							"        type: \"array\",",
+							"        items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                items: {",
+							"                    type: \"array\",",
+							"                    items: {",
+							"                        type: \"string\"",
+							"                    }",
+							"                },",
+							"                item_count: {",
+							"                    type: \"number\"",
+							"                }",
+							"            },",
+							"            required: [\"items\", \"item_count\"],",
+							"            additionalProperties: false",
+							"        }",
+							"    };",
+							"",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"    ",
+							"    for (let i = 0; i < response[0].items.length; i++) {",
+							"        pm.collectionVariables.set(`userItem${i+1}`, response[0].items[i]);",
+							"    }",
+							"});",
+							"",
+							"pm.test(\"Check that items.length and items_count are equal to itemsLimit parameter\", () => {",
+							"    pm.expect(response[0].items.length).to.eql(parseInt(pm.collectionVariables.get(\"itemsLimit\")));",
+							"    pm.expect(response[0].item_count).to.eql(parseInt(pm.collectionVariables.get(\"itemsLimit\")));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/user/items?limit={{itemsLimit}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user",
+						"items"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "{{itemsLimit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET /user/{id}/item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response;",
+							"",
+							"pm.test(\"Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", () => {",
+							"    pm.response.to.be.json;",
+							"    response = pm.response.json();",
+							"});",
+							"",
+							"pm.test(\"Check JSON schema\", () => {",
+							"    let schema = {",
+							"        type: \"array\",",
+							"        items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                id: {",
+							"                    type: \"string\"",
+							"                },",
+							"                title: {",
+							"                    type: \"string\"",
+							"                },",
+							"                tags: {",
+							"                    type: \"array\"",
+							"                },",
+							"                files: {",
+							"                    type: \"array\",",
+							"                    items: {",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            id: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            name: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            size: {",
+							"                                type: \"number\"",
+							"                            },",
+							"                            content_path: {",
+							"                                type: \"string\"",
+							"                            }",
+							"                        },",
+							"                        required: [\"id\", \"name\", \"size\", \"content_path\"]",
+							"                    }",
+							"                },",
+							"                fields: {",
+							"                    type: \"array\",",
+							"                    items: {",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            id: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            label: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            type: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            value: {",
+							"                                type: \"string\"",
+							"                            }",
+							"                        },",
+							"                        required: [\"id\", \"label\", \"type\", \"value\"]",
+							"                    }",
+							"                },",
+							"                shares: {",
+							"                    type: \"array\",",
+							"                    items: {",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            user_uuid: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            email: {",
+							"                                type: \"string\",",
+							"                                format: \"email\"",
+							"                            },",
+							"                            status: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            updated_at: {",
+							"                                type: \"string\",",
+							"                                format: \"date-time\"",
+							"                            }",
+							"                        },",
+							"                        required: [\"user_uuid\", \"email\", \"status\", \"updated_at\"]",
+							"                    }",
+							"                },",
+							"                created_at: {",
+							"                    type: \"string\",",
+							"                    format: \"date-time\"",
+							"                },",
+							"                updated_at: {",
+							"                    type: \"string\",",
+							"                    format: \"date-time\"",
+							"                }",
+							"            },",
+							"            required: [\"id\", \"title\", \"tags\", \"files\", \"fields\", \"shares\", \"created_at\", \"updated_at\"]",
+							"        }",
+							"    };",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"pm.test(\"Response ID value is correct\", () => {",
+							"    pm.expect(response[0].id).to.equal(pm.collectionVariables.get(\"userItem2\"))",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/user/:id/item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user",
+						":id",
+						"item"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{userItem2}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST /user/item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let response;",
+							"",
+							"pm.test(\"Status code is 201\", () => {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response body is JSON\", () => {",
+							"    pm.response.to.be.json;",
+							"    response = pm.response.json();",
+							"});",
+							"",
+							"pm.test(\"Check JSON schema\", () => {",
+							"    let schema = {",
+							"        type: \"array\",",
+							"        items: {",
+							"            type: \"object\",",
+							"            properties: {",
+							"                id: {",
+							"                    type: \"string\"",
+							"                },",
+							"                title: {",
+							"                    type: \"string\"",
+							"                },",
+							"                tags: {",
+							"                    type: \"array\"",
+							"                },",
+							"                files: {",
+							"                    type: \"array\",",
+							"                    items: {",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            id: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            name: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            size: {",
+							"                                type: \"number\"",
+							"                            },",
+							"                            content_path: {",
+							"                                type: \"string\"",
+							"                            }",
+							"                        },",
+							"                        required: [\"id\", \"name\", \"size\", \"content_path\"]",
+							"                    }",
+							"                },",
+							"                fields: {",
+							"                    type: \"array\",",
+							"                    items: {",
+							"                        type: \"object\",",
+							"                        properties: {",
+							"                            id: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            label: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            type: {",
+							"                                type: \"string\"",
+							"                            },",
+							"                            value: {",
+							"                                type: \"string\"",
+							"                            }",
+							"                        },",
+							"                        required: [\"id\", \"label\", \"type\", \"value\"]",
+							"                    }",
+							"                },",
+							"                created_at: {",
+							"                    type: \"string\",",
+							"                    format: \"date-time\"",
+							"                },",
+							"                updated_at: {",
+							"                    type: \"string\",",
+							"                    format: \"date-time\"",
+							"                }",
+							"            },",
+							"            required: [\"id\", \"title\", \"tags\", \"files\", \"fields\", \"created_at\", \"updated_at\"]",
+							"        }",
+							"    };",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"id\": \"9be651eb-a1e8-49fb-a9dc-da3dc14e1cb3\",\n        \"title\": \"Homework API task v1\",\n        \"tags\": [\n            \"task\",\n            \"homewoaefdsafasdfrk\",\n            \"api\"\n        ],\n        \"files\": [\n            {\n                \"id\": \"dh612ehd28d229d334d4391ddq\",\n                \"name\": \"comment.txt\",\n                \"size\": 11560,\n                \"content_path\": \"vault/sjda123/files/dsjlfkj123/filsadfasdfasdfe\"\n            },\n            {\n                \"id\": \"u27djaoad8au2d282dd27df22\",\n                \"name\": \"selfie.png\",\n                \"size\": 83,\n                \"content_path\": \"vault/ftpee34qwer/files/dh612ed91ddq/file\"\n            }\n        ],\n        \"fields\": [\n            {\n                \"id\": \"a33c4fef-7e6c-4c04-88ed-4b7cbe0d8514\",\n                \"label\": \"My strong password\",\n                \"type\": \"password\",\n                \"value\": \"WW91V2VyZUg0Y2szZA==\"\n            },\n            {\n                \"id\": \"8f4a8eba-56b5-4cfa-a810-cd9486f9bf7f\",\n                \"label\": \"Nordpass website\",\n                \"type\": \"url\",\n                \"value\": \"https://app.nordpass.com/login\"\n            },\n            {\n                \"id\": \"7b1f54df-acc3-4c0a-a76f-3e352257d3ab\",\n                \"label\": \"Admin email address\",\n                \"type\": \"email\",\n                \"value\": \"admin@example.com\"\n            }\n        ],\n        \"created_at\": \"2022-04-29T12:01:05.123456780Z\",\n        \"updated_at\": \"2022-12-12T17:20:05.876543210Z\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/user/item",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"user",
+						"item"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "BASE URL",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "TOKEN VALUE"
+		},
+		{
+			"key": "itemsLimit",
+			"value": "ITEMS LIMIT"
+		},
+		{
+			"key": "userItem1",
+			"value": ""
+		},
+		{
+			"key": "userItem2",
+			"value": ""
+		},
+		{
+			"key": "userItem3",
+			"value": ""
+		}
+	]
+}
