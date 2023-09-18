@@ -50,3 +50,10 @@ Obviously, "Register New User" and "Log In" test scenarios are better, but I fac
         <li>There is no verification for authorization token</li>
     </ul>
 </details>
+
+## Bonus
+
+- **Framework:** k6
+- **Language:** JavaScript
+
+Very simple performance testing example.
